@@ -1,0 +1,60 @@
+warning: unused imports: `NaiveDate` and `Weekday`
+ --> src\ui\calendar_view.rs:2:24
+  |
+2 | use chrono::{Datelike, NaiveDate, Weekday};
+  |                        ^^^^^^^^^  ^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+warning: unused import: `CalendarDay`
+ --> src\ui\calendar_view.rs:3:60
+  |
+3 | use crate::logic::calendar_logic::{generate_calendar_days, CalendarDay};
+  |                                                            ^^^^^^^^^^^
+
+warning: `feather_calendar` (lib) generated 2 warnings (run `cargo fix --lib -p feather_calendar` to apply 2 suggestions)
+   Compiling feather_calendar v0.1.0 (D:\tools\Feather-Calendar)
+error[E0599]: no method named `year` found for struct `DateTime` in the current scope
+  --> src\main.rs:23:28
+   |
+23 |             let year = now.year();
+   |                            ^^^^
+   |
+  ::: C:\Users\huhuh\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\chrono-0.4.41\src\traits.rs:33:8
+   |
+33 |     fn year(&self) -> i32;
+   |        ---- the method is available for `DateTime<Local>` here
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: trait `Datelike` which provides `year` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use chrono::Datelike;
+   |
+help: there is a method `year_ce` with a similar name
+   |
+23 |             let year = now.year_ce();
+   |                                +++
+
+error[E0599]: no method named `month` found for struct `DateTime` in the current scope
+  --> src\main.rs:24:29
+   |
+24 |             let month = now.month();
+   |                             ^^^^^
+   |
+  ::: C:\Users\huhuh\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\chrono-0.4.41\src\traits.rs:54:8
+   |
+54 |     fn month(&self) -> u32;
+   |        ----- the method is available for `DateTime<Local>` here
+   |
+   = help: items from traits can only be used if the trait is in scope
+help: trait `Datelike` which provides `month` is implemented but not in scope; perhaps you want to import it
+   |
+1  + use chrono::Datelike;
+   |
+help: there is a method `month0` with a similar name
+   |
+24 |             let month = now.month0();
+   |                                  +
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `feather_calendar` (bin "feather_calendar") due to 2 previous errors
