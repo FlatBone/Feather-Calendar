@@ -2,17 +2,17 @@
 
 ### Phase 1: プロジェクトセットアップと基本ウィンドウ (見積もり: S)
 
-- `[ ]` `cargo new feather_calendar`でプロジェクトを新規作成する。
-- `[ ]` `Cargo.toml`に`eframe`, `egui`, `chrono`, `serde`を追加する。
-- `[ ]` `main.rs`で`eframe`を初期化し、空のウィンドウを表示する。 **(要件: FR-07)**
-- `[ ]` `app.rs`を作成し、基本的な`AppState`構造体と`eframe::App`の実装を追加する。
+- `[x]` `cargo new feather_calendar`でプロジェクトを新規作成する。
+- `[x]` `Cargo.toml`に`eframe`, `egui`, `chrono`, `serde`を追加する。
+- `[x]` `main.rs`で`eframe`を初期化し、空のウィンドウを表示する。 **(要件: FR-07)**
+- `[x]` `app.rs`を作成し、基本的な`AppState`構造体と`eframe::App`の実装を追加する。
 
 ### Phase 2: カレンダー表示機能の実装 (見積もり: M)
 
-- `[ ]` `logic/calendar_logic.rs`で、指定された年月のカレンダーデータ（日付、曜日など）を生成する関数を実装する。 **(要件: FR-03)**
-- `[ ]` 上記ロジックに対するユニットテストを作成する。
-- `[ ]` `ui/calendar_view.rs`で、単月のカレンダーをグリッドレイアウトで描画するコンポーネントを作成する。
-- `[ ]` `app.rs`から`calendar_view`を呼び出し、まず今月分だけのカレンダーを表示させる。 **(部分的にFR-01)**
+- `[x]` `logic/calendar_logic.rs`で、指定された年月のカレンダーデータ（日付、曜日など）を生成する関数を実装する。 **(要件: FR-03)**
+- `[x]` 上記ロジックに対するユニットテストを作成する。
+- `[x]` `ui/calendar_view.rs`で、単月のカレンダーをグリッドレイアウトで描画するコンポーネントを作成する。
+- `[x]` `app.rs`から`calendar_view`を呼び出し、まず今月分だけのカレンダーを表示させる。 **(部分的にFR-01)**
 
 ### Phase 3: コア機能の実装 (見積もり: L)
 
