@@ -1,8 +1,9 @@
-use egui::{Align, Color32, Layout, RichText, Ui};
+use egui::{Align, Color32, Layout, RichText, Ui, Sense, Vec2};
 use chrono::{Datelike, NaiveDate, Weekday};
 use crate::logic::calendar_logic::{generate_calendar_days, CalendarDay};
+use std::collections::HashSet;
 
-pub fn calendar_view(ui: &mut Ui, year: i32, month: u32) {
+pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut HashSet<NaiveDate>) {
     ui.vertical(|ui| {
         ui.add_space(10.0);
         ui.with_layout(Layout::top_down(Align::Center), |ui| {
@@ -43,12 +44,25 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32) {
                             };
                             let mut text = RichText::new(format!("{}", day.date.day())).color(text_color);
 
+                            let is_marked = marked_dates.contains(&day.date);
+
                             // Highlight today's date
                             if day.date == chrono::Local::now().date_naive() {
                                 text = text.background_color(Color32::from_rgb(50, 50, 100));
+                            } else if is_marked {
+                                text = text.background_color(Color32::from_rgb(100, 50, 50));
                             }
 
-                            ui.label(text);
+                            let response = ui.add_sized(Vec2::new(30.0, 30.0), egui::Label::new(text).sense(Sense::click()));
+                            if response.clicked() {
+                                if day.is_current_month {
+                                    if is_marked {
+                                        marked_dates.remove(&day.date);
+                                    } else {
+                                        marked_dates.insert(day.date);
+                                    }
+                                }
+                            }
                         });
                     }
                 }

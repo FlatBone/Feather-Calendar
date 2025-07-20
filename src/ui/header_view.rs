@@ -20,5 +20,11 @@ pub fn header_view(ui: &mut Ui, app_state: &mut AppState) {
             let next_month_date = current_month_date.checked_add_months(Months::new(1)).unwrap();
             app_state.current_month = (next_month_date.year(), next_month_date.month());
         }
+
+        // Pin to top button
+        let pin_button_text = if app_state.is_always_on_top { "📌" } else { "📍" };
+        if ui.button(pin_button_text).clicked() {
+            app_state.is_always_on_top = !app_state.is_always_on_top;
+        }
     });
 }

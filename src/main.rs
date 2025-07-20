@@ -31,6 +31,13 @@ impl Default for FeatherCalendarApp {
 
 impl eframe::App for FeatherCalendarApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+        let level = if self.app_state.is_always_on_top {
+            egui::viewport::WindowLevel::AlwaysOnTop
+        } else {
+            egui::viewport::WindowLevel::Normal
+        };
+        ctx.send_viewport_cmd(egui::ViewportCommand::WindowLevel(level));
+
         egui::CentralPanel::default().show(ctx, |ui| {
             // Header
             feather_calendar::ui::header_view::header_view(ui, &mut self.app_state);
@@ -46,9 +53,9 @@ impl eframe::App for FeatherCalendarApp {
             let next_month_date = current_month_date.checked_add_months(Months::new(1)).unwrap();
 
             ui.columns(3, |columns| {
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[0], prev_month_date.year(), prev_month_date.month());
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[1], year, month);
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[2], next_month_date.year(), next_month_date.month());
+                feather_calendar::ui::calendar_view::calendar_view(&mut columns[0], prev_month_date.year(), prev_month_date.month(), &mut self.app_state.marked_dates);
+                feather_calendar::ui::calendar_view::calendar_view(&mut columns[1], year, month, &mut self.app_state.marked_dates);
+                feather_calendar::ui::calendar_view::calendar_view(&mut columns[2], next_month_date.year(), next_month_date.month(), &mut self.app_state.marked_dates);
             });
         });
     }
