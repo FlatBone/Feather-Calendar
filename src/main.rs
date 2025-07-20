@@ -5,7 +5,10 @@ use feather_calendar::app::AppState;
 use chrono::{Datelike, NaiveDate, Months};
 
 fn main() -> eframe::Result<()> {
-    let native_options = eframe::NativeOptions::default();
+    let native_options = eframe::NativeOptions {
+        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 300.0]),
+        ..Default::default()
+    };
     eframe::run_native(
         "Feather Calendar",
         native_options,
