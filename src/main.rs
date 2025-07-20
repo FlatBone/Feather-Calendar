@@ -32,6 +32,11 @@ impl Default for FeatherCalendarApp {
 impl eframe::App for FeatherCalendarApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
+            // Header
+            feather_calendar::ui::header_view::header_view(ui, &mut self.app_state);
+            ui.separator();
+
+            // Calendars
             let (year, month) = self.app_state.current_month;
             let current_month_date = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
 
