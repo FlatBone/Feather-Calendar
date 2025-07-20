@@ -1,3 +1,4 @@
+#![windows_subsystem = "windows"]
 mod app;
 
 use feather_calendar::app::AppState;
