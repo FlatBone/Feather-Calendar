@@ -3,10 +3,13 @@ mod app;
 
 use feather_calendar::app::AppState;
 use chrono::{Datelike, NaiveDate, Months};
+use image::GenericImageView;
 
 fn main() -> eframe::Result<()> {
+    let icon = load_icon();
+
     let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 300.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 300.0]).with_icon(icon),
         ..Default::default()
     };
     eframe::run_native(
@@ -62,5 +65,19 @@ impl eframe::App for FeatherCalendarApp {
                 feather_calendar::ui::calendar_view::calendar_view(&mut columns[2], next_month_date.year(), next_month_date.month(), &mut self.app_state.marked_dates);
             });
         });
+    }
+}
+
+fn load_icon() -> egui::IconData {
+    // include_bytes!マクロでコンパイル時に画像をバイナリとして埋め込む
+    let icon_bytes = include_bytes!("../icon.png");
+    let image = image::load_from_memory_with_format(icon_bytes, image::ImageFormat::Png)
+        .expect("Failed to load icon");
+    let image_buffer = image.to_rgba8();
+    let (width, height) = image.dimensions();
+    egui::IconData {
+        rgba: image_buffer.into_raw(),
+        width,
+        height,
     }
 }
