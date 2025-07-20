@@ -53,7 +53,10 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
                                 text = text.background_color(Color32::from_rgb(100, 50, 50));
                             }
 
-                            let response = ui.add_sized(Vec2::new(30.0, 30.0), egui::Label::new(text).sense(Sense::click()));
+                            let available_width = ui.available_width();
+                            let cell_size = Vec2::new(available_width, 30.0);
+
+                            let response = ui.add_sized(cell_size, egui::Label::new(text).sense(Sense::click()));
                             if response.clicked() {
                                 if day.is_current_month {
                                     if is_marked {
