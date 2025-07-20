@@ -13,7 +13,7 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
 
         // Weekday headers
         ui.columns(7, |columns| {
-            let weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+            let weekdays = ["Sun.", "Mon.", "Tue.", "Wed.", "Thu.", "Fri.", "Sat."];
             for (i, column) in columns.iter_mut().enumerate() {
                 column.with_layout(Layout::top_down(Align::Center), |ui| {
                     let text_color = match i {
