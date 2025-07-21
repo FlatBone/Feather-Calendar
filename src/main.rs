@@ -37,7 +37,15 @@ impl Default for FeatherCalendarApp {
 }
 
 impl eframe::App for FeatherCalendarApp {
-    fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        // OSのテーマ設定に応じてeguiのテーマを切り替える
+        if let Some(theme) = frame.info().system_theme {
+            ctx.set_visuals(match theme {
+                eframe::Theme::Dark => egui::Visuals::dark(),
+                eframe::Theme::Light => egui::Visuals::light(),
+            });
+        }
+
         let level = if self.app_state.is_always_on_top {
             egui::viewport::WindowLevel::AlwaysOnTop
         } else {
@@ -59,10 +67,11 @@ impl eframe::App for FeatherCalendarApp {
             // 翌月
             let next_month_date = current_month_date.checked_add_months(Months::new(1)).unwrap();
 
+            let visuals = ui.style().visuals.clone();
             ui.columns(3, |columns| {
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[0], prev_month_date.year(), prev_month_date.month(), &mut self.app_state.marked_dates);
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[1], year, month, &mut self.app_state.marked_dates);
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[2], next_month_date.year(), next_month_date.month(), &mut self.app_state.marked_dates);
+                feather_calendar::ui::calendar_view::calendar_view(&mut columns[0], prev_month_date.year(), prev_month_date.month(), &mut self.app_state.marked_dates, &visuals);
+                feather_calendar::ui::calendar_view::calendar_view(&mut columns[1], year, month, &mut self.app_state.marked_dates, &visuals);
+                feather_calendar::ui::calendar_view::calendar_view(&mut columns[2], next_month_date.year(), next_month_date.month(), &mut self.app_state.marked_dates, &visuals);
             });
         });
     }

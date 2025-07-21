@@ -1,9 +1,9 @@
-use egui::{Align, Color32, Layout, RichText, Ui, Sense, Vec2};
-use chrono::{Datelike, NaiveDate, Weekday};
-use crate::logic::calendar_logic::{generate_calendar_days, CalendarDay};
+use egui::{Align, Color32, Layout, RichText, Ui, Vec2, Visuals};
+use chrono::{Datelike, NaiveDate};
+use crate::logic::calendar_logic::{generate_calendar_days};
 use std::collections::HashSet;
 
-pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut HashSet<NaiveDate>) {
+pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut HashSet<NaiveDate>, visuals: &Visuals) {
     ui.vertical(|ui| {
         ui.add_space(10.0);
         ui.with_layout(Layout::top_down(Align::Center), |ui| {
@@ -19,7 +19,7 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
                     let text_color = match i {
                         0 => Color32::RED,   // Sunday
                         6 => Color32::BLUE,  // Saturday
-                        _ => Color32::WHITE, // Weekdays
+                        _ => visuals.text_color(), // Weekdays
                     };
                     ui.label(RichText::new(weekdays[i]).color(text_color));
                 });
@@ -38,7 +38,7 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
                     if let Some(day) = day_iter.next() {
                         column.with_layout(Layout::top_down(Align::Center), |ui| {
                             let text_color = if day.is_current_month {
-                                Color32::WHITE
+                                visuals.text_color()
                             } else {
                                 Color32::DARK_GRAY
                             };
@@ -48,15 +48,25 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
 
                             // Highlight today's date
                             if day.date == chrono::Local::now().date_naive() {
-                                text = text.background_color(Color32::from_rgb(50, 50, 100));
+                                text = text.background_color(Color32::from_rgb(50, 50, 100)).color(Color32::WHITE);
                             } else if is_marked {
-                                text = text.background_color(Color32::from_rgb(100, 50, 50));
+                                text = text.background_color(Color32::from_rgb(100, 50, 50)).color(Color32::WHITE);
                             }
 
                             let available_width = ui.available_width();
                             let cell_size = Vec2::new(available_width, 30.0);
 
-                            let response = ui.add_sized(cell_size, egui::Label::new(text).sense(Sense::click()));
+                            let button = egui::Button::new(text).frame(false).min_size(cell_size);
+                            let response = ui.add(button);
+
+                            if response.hovered() {
+                                ui.painter().rect_stroke(
+                                    response.rect,
+                                    egui::Rounding::ZERO,
+                                    egui::Stroke::new(1.0, Color32::GRAY),
+                                );
+                            }
+
                             if response.clicked() {
                                 if day.is_current_month {
                                     if is_marked {
