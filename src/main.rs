@@ -9,7 +9,7 @@ fn main() -> eframe::Result<()> {
     let icon = load_icon();
 
     let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([800.0, 300.0]).with_icon(icon),
+        viewport: egui::ViewportBuilder::default().with_inner_size([860.0, 300.0]).with_icon(icon),
         ..Default::default()
     };
     eframe::run_native(
@@ -68,10 +68,24 @@ impl eframe::App for FeatherCalendarApp {
             let next_month_date = current_month_date.checked_add_months(Months::new(1)).unwrap();
 
             let visuals = ui.style().visuals.clone();
-            ui.columns(3, |columns| {
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[0], prev_month_date.year(), prev_month_date.month(), &mut self.app_state.marked_dates, &visuals);
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[1], year, month, &mut self.app_state.marked_dates, &visuals);
-                feather_calendar::ui::calendar_view::calendar_view(&mut columns[2], next_month_date.year(), next_month_date.month(), &mut self.app_state.marked_dates, &visuals);
+            // Subtract a small fixed amount for separators and spacing to prevent clipping
+            let calendar_width = (ui.available_width() - 50.0) / 3.0;
+
+            ui.horizontal(|ui| {
+                ui.vertical(|ui| {
+                    ui.set_width(calendar_width);
+                    feather_calendar::ui::calendar_view::calendar_view(ui, prev_month_date.year(), prev_month_date.month(), &mut self.app_state.marked_dates, &visuals);
+                });
+                ui.separator();
+                ui.vertical(|ui| {
+                    ui.set_width(calendar_width);
+                    feather_calendar::ui::calendar_view::calendar_view(ui, year, month, &mut self.app_state.marked_dates, &visuals);
+                });
+                ui.separator();
+                ui.vertical(|ui| {
+                    ui.set_width(calendar_width);
+                    feather_calendar::ui::calendar_view::calendar_view(ui, next_month_date.year(), next_month_date.month(), &mut self.app_state.marked_dates, &visuals);
+                });
             });
         });
     }
