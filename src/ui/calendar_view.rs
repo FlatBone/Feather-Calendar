@@ -1,5 +1,5 @@
 use crate::logic::calendar_logic::CalendarDay;
-use egui::{Align, Button, Color32, Frame, Layout, RichText, Ui, Vec2, Visuals};
+use egui::{Align, Button, Color32, Layout, RichText, Ui, Vec2, Visuals};
 use chrono::{Datelike, NaiveDate};
 use std::collections::HashSet;
 
