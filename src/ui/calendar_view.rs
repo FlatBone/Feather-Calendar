@@ -1,4 +1,4 @@
-use egui::{Align, Color32, Layout, RichText, Ui, Vec2, Visuals};
+use egui::{Align, Button, Color32, Frame, Layout, RichText, Ui, Vec2, Visuals};
 use chrono::{Datelike, NaiveDate};
 use crate::logic::calendar_logic::{generate_calendar_days};
 use std::collections::HashSet;
@@ -56,19 +56,17 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
                             let available_width = ui.available_width();
                             let cell_size = Vec2::new(available_width, 30.0);
 
-                            let response = ui.scope(|ui| {
-                                let mut style = ui.style().clone();
-                                style.visuals.widgets.inactive.bg_fill = Color32::TRANSPARENT;
-                                style.visuals.widgets.inactive.bg_stroke = egui::Stroke::NONE;
-                                style.visuals.widgets.hovered.bg_fill = Color32::TRANSPARENT;
-                                style.visuals.widgets.hovered.bg_stroke = egui::Stroke::new(1.0, Color32::GRAY);
-                                style.visuals.widgets.active.bg_fill = Color32::from_gray(64);
-                                style.visuals.widgets.active.bg_stroke = egui::Stroke::new(1.0, Color32::GRAY);
-                                ui.set_style(style);
+                            let button_frame = Frame {
+                                fill: Color32::TRANSPARENT,
+                                stroke: egui::Stroke::NONE,
+                                ..Default::default()
+                            };
 
-                                let button = egui::Button::new(text).min_size(cell_size);
-                                ui.add(button)
-                            }).inner;
+                            let button = Button::new(text)
+                                .min_size(cell_size)
+                                .frame(true);
+
+                            let response = ui.add(button).on_hover_cursor(egui::CursorIcon::PointingHand);
 
                             if response.clicked() {
                                 if day.is_current_month {
