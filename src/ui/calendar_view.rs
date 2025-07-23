@@ -56,16 +56,19 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
                             let available_width = ui.available_width();
                             let cell_size = Vec2::new(available_width, 30.0);
 
-                            let button = egui::Button::new(text).frame(false).min_size(cell_size);
-                            let response = ui.add(button);
+                            let response = ui.scope(|ui| {
+                                let mut style = ui.style().clone();
+                                style.visuals.widgets.inactive.bg_fill = Color32::TRANSPARENT;
+                                style.visuals.widgets.inactive.bg_stroke = egui::Stroke::NONE;
+                                style.visuals.widgets.hovered.bg_fill = Color32::TRANSPARENT;
+                                style.visuals.widgets.hovered.bg_stroke = egui::Stroke::new(1.0, Color32::GRAY);
+                                style.visuals.widgets.active.bg_fill = Color32::from_gray(64);
+                                style.visuals.widgets.active.bg_stroke = egui::Stroke::new(1.0, Color32::GRAY);
+                                ui.set_style(style);
 
-                            if response.hovered() {
-                                ui.painter().rect_stroke(
-                                    response.rect,
-                                    egui::Rounding::ZERO,
-                                    egui::Stroke::new(1.0, Color32::GRAY),
-                                );
-                            }
+                                let button = egui::Button::new(text).min_size(cell_size);
+                                ui.add(button)
+                            }).inner;
 
                             if response.clicked() {
                                 if day.is_current_month {
