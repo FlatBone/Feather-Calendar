@@ -1,9 +1,9 @@
-use egui::{Align, Color32, Layout, RichText, Ui, Vec2, Visuals};
+use crate::logic::calendar_logic::CalendarDay;
+use egui::{Align, Button, Color32, Layout, RichText, Ui, Vec2, Visuals};
 use chrono::{Datelike, NaiveDate};
-use crate::logic::calendar_logic::{generate_calendar_days};
 use std::collections::HashSet;
 
-pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut HashSet<NaiveDate>, visuals: &Visuals) {
+pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, days: &[CalendarDay], marked_dates: &mut HashSet<NaiveDate>, visuals: &Visuals) {
     ui.vertical(|ui| {
         ui.add_space(10.0);
         ui.with_layout(Layout::top_down(Align::Center), |ui| {
@@ -29,10 +29,12 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
         ui.separator();
 
         // Calendar days
-        let days = generate_calendar_days(year, month);
         let mut day_iter = days.iter();
 
         for _week in 0..6 { // Max 6 weeks in a month view
+            if day_iter.len() == 0 {
+                break;
+            }
             ui.columns(7, |columns| {
                 for column in columns.iter_mut() {
                     if let Some(day) = day_iter.next() {
@@ -56,16 +58,13 @@ pub fn calendar_view(ui: &mut Ui, year: i32, month: u32, marked_dates: &mut Hash
                             let available_width = ui.available_width();
                             let cell_size = Vec2::new(available_width, 30.0);
 
-                            let button = egui::Button::new(text).frame(false).min_size(cell_size);
-                            let response = ui.add(button);
+                            
 
-                            if response.hovered() {
-                                ui.painter().rect_stroke(
-                                    response.rect,
-                                    egui::Rounding::ZERO,
-                                    egui::Stroke::new(1.0, Color32::GRAY),
-                                );
-                            }
+                            let button = Button::new(text)
+                                .min_size(cell_size)
+                                .frame(true);
+
+                            let response = ui.add(button).on_hover_cursor(egui::CursorIcon::PointingHand);
 
                             if response.clicked() {
                                 if day.is_current_month {
