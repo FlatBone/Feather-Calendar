@@ -3,13 +3,14 @@
 会議やタスク管理を妨げない、軽量デスクトップカレンダー。
 必要な時に素早く参照でき、使い終わったらすぐに閉じられる、シンプルで軽快なWindows向けカレンダーアプリケーションです。
 
-![Feather Calendar Screenshot](https://raw.githubusercontent.com/your-username/feather-calendar/main/screenshot.png)
-*(注: 上記はサンプル画像です)*
+
+<img width="1063" height="399" alt="image" src="https://github.com/user-attachments/assets/9f44d640-7389-4ef4-bfc7-4fdac58f3d04" />
+
 
 ## 概要
 
 「次回の会議はいつにしよう？」「このタスクの締め切り、何曜日だっけ？」
-そんな時、OS標準のカレンダーは機能が多すぎたり、他のウィンドウを選ぶと消えてしまったりと、少し不便に感じることがあります。
+そんな時、OS標準のカレンダーは他のウィンドウを選ぶと消えてしまったり、Officeのカレンダーは多機能すぎたりと、少し不便に感じることがあります。
 
 Feather Calendar(フェザーカレンダー)は、そんな小さなストレスを解消するために生まれました。
 前月・今月・翌月の3ヶ月を一度に表示し、特定の日付に色を付けてメモ代わりにすることもできます。
