@@ -1,75 +1,93 @@
 # Feather Calendar
 
-会議やタスク管理を妨げない、軽量デスクトップカレンダー。
-必要な時に素早く参照でき、使い終わったらすぐに閉じられる、シンプルで軽快なWindows向けカレンダーアプリケーションです。
-
+A lightweight, **pinnable desktop calendar** that won't get in your way during meetings.
+It's a simple and fast Windows application that you can quickly open when you need it and close when you're done.
 
 <img width="1063" height="399" alt="image" src="https://github.com/user-attachments/assets/9f44d640-7389-4ef4-bfc7-4fdac58f3d04" />
 
+## What is Feather Calendar?
 
-## 概要
+"When should we schedule the next meeting?" This is a common question during web conferences.
+The default OS calendar disappears when you click on another window, and full-featured schedulers like Outlook can be overkill when all you want to do is **just check a date**.
 
-「次回の会議はいつにしよう？」「このタスクの締め切り、何曜日だっけ？」
-そんな時、OS標準のカレンダーは他のウィンドウを選ぶと消えてしまったり、Officeのカレンダーは多機能すぎたりと、少し不便に感じることがあります。
+Feather Calendar was created to solve these minor frustrations.
+By completely **removing scheduling features** and focusing solely on **providing a quick way to view dates**, it offers a level of lightness and convenience that other calendars don't.
 
-Feather Calendar(フェザーカレンダー)は、そんな小さなストレスを解消するために生まれました。
-前月・今月・翌月の3ヶ月を一度に表示し、特定の日付に色を付けてメモ代わりにすることもできます。
-インストール不要で、いつでも最前面に表示できる「ピン留め」機能も搭載しています。
+## How is it different from other calendars?
 
-## 主な機能
+To clarify its position, here's a feature comparison with major calendar applications.
 
-- **3ヶ月表示**: 前月、今月、翌月を一度に確認でき、月をまたぐ予定の調整が簡単です。
-- **日付のハイライト**: 任意の日付をクリックして色を付け、簡易的なマーカーとして利用できます。
-- **月移動**: ボタン一つで表示する月を前後に移動したり、今日に戻ったりできます。
-- **最前面表示 (ピン留め)**: ウィンドウを常に他のウィンドウより手前に固定できます。
-- **レスポンシブデザイン**: ウィンドウサイズに合わせてカレンダーの大きさが自動で調整されます。
-- **テーマ連動**: OSのライト/ダークテーマ設定に自動で追従します。
-- **インストール不要**: zipファイルを解凍し、実行ファイル（`.exe`）を起動するだけですぐに使えます。
+| Feature | Feather Calendar | Windows Default | Google Calendar (Web) | Outlook (Desktop) |
+|:---|:---:|:---:|:---:|:---:|
+| **Installation** | **◎ (Not Required)** | ◎ (OS Integrated) | ◎ (Not Required) | ✕ (Required) |
+| **Startup Speed / Lightweight** | **◎** | ○ | △ (Browser dependent) | ✕ |
+| **Always on Top (Pinnable)** | **◎** | ✕ | ✕ | ✕ |
+| **Stays Visible (Doesn't disappear)** | **◎** | ✕ | ○ (Tab/Window) | ○ (Window) |
+| **Multi-Month View** | **◎ (3 Months)** | ✕ (1 Month) | ○ | ○ |
+| **Scheduling / Sync** | **✕ (Not Supported)** | ○ (Limited) | ◎ | ◎ |
 
-## 使い方
+As this table shows, Feather Calendar is a specialized tool for "quick date reference," not "event management."
 
-1.  **ダウンロード**: 最新版のzipファイルをリリースページからダウンロードします。
-2.  **解凍**: ダウンロードしたzipファイルを好きな場所に解凍します。
-3.  **起動**: `Feather-Calendar.exe` をダブルクリックしてアプリケーションを起動します。
+## Features
 
-## 動作環境
+- 🚀 **No Installation Required**: Just unzip the file and run the `.exe`. It doesn't clutter your registry.
+- 📌 **Always on Top (Pinnable)**: Keep the calendar visible above all other windows with a single click.
+- 📅 **Intuitive 3-Month View**: See the previous, current, and next months at a glance for easy scheduling across months.
+- 🎨 **Date Highlighting**: Click on any date to highlight it, using it as a simple marker.
+- 🌗 **Theme-Aware**: Automatically switches between light and dark modes to match your OS settings.
+- 💨 **Lightweight & Fast**: Built with Rust and egui for low memory usage and snappy performance on any PC.
+- 📐 **Responsive Design**: The calendar layout automatically adjusts to fit the window size.
+
+## Use Cases
+
+- Scheduling meetings during web conferences or online classes.
+- Keeping a calendar permanently visible on a secondary monitor.
+- For developers who need to quickly check dates and days of the week.
+- For anyone frustrated with the "disappearing" default OS calendar.
+- When you need a quick, offline calendar, even if you normally use a web-based one like Google Calendar.
+
+## How to Use
+
+1.  **Download**: Get the latest zip file from the **[Releases page](https://github.com/FlatBone/feather-calendar/releases)**.
+2.  **Extract**: Unzip the downloaded file to your desired location.
+3.  **Launch**: Double-click `Feather-Calendar.exe` to start the application.
+
+## System Requirements
 
 - **OS**: Windows 10, Windows 11
 
-## 開発者向け情報
+## For Developers
 
-### ビルド方法
+### How to Build
 
-このアプリケーションをソースコードからビルドするには、以下の手順に従ってください。
+To build this application from the source code, follow these steps.
 
-1.  **Rustの環境をセットアップします。**
-    [rustup](https://rustup.rs/) を使ってインストールするのが最も簡単です。
+1.  **Set up the Rust environment.**
+    The easiest way is to use [rustup](https://rustup.rs/).
 
-2.  **このリポジトリをクローンします。**
+2.  **Clone this repository.**
     ```sh
     git clone https://github.com/FlatBone/feather-calendar.git
     cd feather-calendar
     ```
 
-3.  **ビルドと実行**
-    - **デバッグモードで実行:**
+3.  **Build and run.**
+    - **Run in debug mode:**
       ```sh
       cargo run
       ```
-    - **リリースモードでビルド:**
+    - **Build in release mode:**
       ```sh
       cargo build --release
       ```
-      ビルドが完了すると、`target/release/feather_calendar.exe` に実行ファイルが生成されます。
+      Once the build is complete, the executable will be located at `target/release/feather_calendar.exe`.
 
-### 技術スタック
+### Tech Stack
 
-- **言語**: [Rust](https://www.rust-lang.org/)
-- **GUIフレームワーク**: [egui](https://github.com/emilk/egui)
-- **ウィンドウ管理**: [eframe](https://github.com/emilk/egui/tree/master/crates/eframe)
-- **日付/時刻処理**: [chrono](https.crates.io/crates/chrono)
-- **データ保存**: [serde](https://serde.rs/)
+- **Language**: [Rust](https://www.rust-lang.org/)
+- **GUI Framework**: [egui](https://github.com/emilk/egui) (Windowing by [eframe](https://github.com/emilk/egui/tree/master/crates/eframe))
+- **Date/Time Handling**: [chrono](https://crates.io/crates/chrono)
 
-## ライセンス
+## License
 
-このプロジェクトは [MITライセンス](LICENSE) の下で公開されています。
+This project is licensed under the [MIT License](LICENSE).
