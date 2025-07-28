@@ -60,10 +60,22 @@ Feather Calendarの立ち位置を明確にするため、主要なカレンダ�
 
 ### ビルド方法
 
-このアプリケーションをソースコードからビルドするには、以下の手順に従ってください。
+ソースコードからこのアプリケーションをビルドするには、以下の手順に従ってください。
 
-1.  **Rustの環境をセットアップします。**
-    [rustup](https://rustup.rs/) を使ってインストールするのが最も簡単です。
+1.  **Rust環境をセットアップします。**
+
+    [rustup](https://rustup.rs/) を使うのが最も簡単な方法です。
+
+    ```bash
+    # rustup とデフォルトのツールチェーンをインストールします
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    ```
+
+    **Windows (MSVC) ユーザー向けの注意:**
+    `x86_64-pc-windows-msvc` ツールチェーンは、**Microsoft C++ Build Tools** を必要とします。[Visual Studio Installer](https://visualstudio.microsoft.com/ja/visual-cpp-build-tools/) を使ってインストールしてください。
+    インストーラーでは、「**C++によるデスクトップ開発**」ワークロードを選択する必要があります。
+
+    インストール後、ビルドエラーを避けるために、**Developer Command Prompt for VS (開発者コマンドプロンプト for VS)** を起動し、そのターミナル上で後続のコマンドを実行することを強く推奨します。これにより、ビルドに必要な環境変数が自動的に設定されます。
 
 2.  **このリポジトリをクローンします。**
     ```sh

@@ -63,23 +63,33 @@ As this table shows, Feather Calendar is a specialized tool for "quick date refe
 To build this application from the source code, follow these steps.
 
 1.  **Set up the Rust environment.**
+
     The easiest way is to use [rustup](https://rustup.rs/).
 
+    ```bash
+    # Installs rustup and the default toolchain
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    ```
+
+    **For Windows (MSVC) users:**
+    The `x86_64-pc-windows-msvc` toolchain requires the Microsoft C++ Build Tools. Please install them via the [Visual Studio Installer](https://visualstudio.microsoft.com/visual-cpp-build-tools/).
+    In the installer, select the "C++ build tools" workload.
+
+    After installation, it is recommended to run the build commands in the **Developer Command Prompt for VS** to ensure all necessary environment variables are set correctly.
+
 2.  **Clone this repository.**
+
     ```sh
     git clone https://github.com/FlatBone/feather-calendar.git
     cd feather-calendar
     ```
 
-3.  **Build and run.**
-    - **Run in debug mode:**
-      ```sh
-      cargo run
-      ```
-    - **Build in release mode:**
-      ```sh
-      cargo build --release
-      ```
+3.  **Build the application.**
+
+    ```bash
+    cargo build --release
+    ```
+
       Once the build is complete, the executable will be located at `target/release/feather_calendar.exe`.
 
 ### Tech Stack
