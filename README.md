@@ -48,9 +48,23 @@ As this table shows, Feather Calendar is a specialized tool for "quick date refe
 
 ## How to Use
 
+### Getting Started
 1.  **Download**: Get the latest zip file from the **[Releases page](https://github.com/FlatBone/feather-calendar/releases)**.
 2.  **Extract**: Unzip the downloaded file to your desired location.
 3.  **Launch**: Double-click `Feather-Calendar.exe` to start the application.
+
+### Usage
+#### Calendar View
+The calendar displays the previous, current, and next months based on today's date.
+
+#### Highlighting Dates
+You can highlight a date by clicking on it. Click the date again to remove the highlight.
+
+#### Changing the Displayed Month
+Click the arrow buttons next to "Today" to change the displayed month. Click the "Today" button to return to the default view.
+
+#### Pinning (Always on Top)
+You'll find the "Pin" button to the right of the month navigation controls. Click it to keep the calendar always on top of other windows. Click the button again to unpin it.
 
 ## System Requirements
 
