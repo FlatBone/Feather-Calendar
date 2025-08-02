@@ -57,6 +57,7 @@ MVUパターンは、UIの状態変化を一方通行のデータフローで管
   - `app.rs` 内の `update` メソッドでこれらのイベントを処理し、`AppState` を変更する。
     - 例：月移動ボタンクリック → `AppState` の `current_month` を変更する。
     - 例：日付セルクリック → `AppState` の `marked_dates` に日付を追加/削除する。
+    - 例：リセットボタンクリック → `AppState` の `marked_dates` を空にする。
 
 - **AppState → View:**
   - `update` メソッドの描画部分で、現在の `AppState` を参照して `calendar_view` や `header_view` などのUIコンポーネントを呼び出す。
