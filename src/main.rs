@@ -9,7 +9,7 @@ fn main() -> eframe::Result<()> {
     let icon = load_icon();
 
     let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([860.0, 300.0]).with_icon(icon),
+        viewport: egui::ViewportBuilder::default().with_inner_size([860.0, 310.0]).with_icon(icon),
         ..Default::default()
     };
     eframe::run_native(
