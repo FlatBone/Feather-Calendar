@@ -26,5 +26,10 @@ pub fn header_view(ui: &mut Ui, app_state: &mut AppState) {
         if ui.button(pin_button_text).clicked() {
             app_state.is_always_on_top = !app_state.is_always_on_top;
         }
+
+        // Reset marked dates button
+        if ui.button("Clear").clicked() {
+            app_state.marked_dates.clear();
+        }
     });
 }
