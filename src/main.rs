@@ -1,6 +1,6 @@
 #![windows_subsystem = "windows"]
 
-use feather_calendar::app::AppState;
+use feather_calendar::app::{AppState, ViewMode};
 use chrono::{Datelike, NaiveDate, Months};
 use feather_calendar::logic::calendar_logic;
 use image::GenericImageView;
@@ -9,7 +9,7 @@ fn main() -> eframe::Result<()> {
     let icon = load_icon();
 
     let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([860.0, 310.0]).with_icon(icon),
+        viewport: egui::ViewportBuilder::default().with_inner_size([860.0, 310.0]).with_icon(icon).with_resizable(true),
         ..Default::default()
     };
     eframe::run_native(
@@ -21,6 +21,7 @@ fn main() -> eframe::Result<()> {
 
 struct FeatherCalendarApp {
     app_state: AppState,
+    previous_view_mode: ViewMode,
 }
 
 impl FeatherCalendarApp {
@@ -32,6 +33,7 @@ impl FeatherCalendarApp {
                 current_month: (year, month),
                 ..Default::default()
             },
+            previous_view_mode: ViewMode::ThreeMonths,
         };
         app.update_calendar_days();
         app
@@ -70,6 +72,16 @@ impl eframe::App for FeatherCalendarApp {
 
         let current_month_before = self.app_state.current_month;
 
+        // 表示モードが変更された場合、ウィンドウサイズを調整
+        if self.app_state.view_mode != self.previous_view_mode {
+            let new_size = match self.app_state.view_mode {
+                ViewMode::SingleMonth => [300.0, 310.0], // 一ヶ月表示時のサイズ
+                ViewMode::ThreeMonths => [860.0, 310.0], // 三ヶ月表示時のサイズ
+            };
+            ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize(egui::Vec2::from(new_size)));
+            self.previous_view_mode = self.app_state.view_mode;
+        }
+
         egui::CentralPanel::default().show(ctx, |ui| {
             // Header
             feather_calendar::ui::header_view::header_view(ui, &mut self.app_state);
@@ -86,24 +98,36 @@ impl eframe::App for FeatherCalendarApp {
             let next_month_date = current_month_date.checked_add_months(Months::new(1)).unwrap();
 
             let visuals = ui.style().visuals.clone();
-            let calendar_width = (ui.available_width() - 50.0) / 3.0;
 
-            ui.horizontal(|ui| {
-                ui.vertical(|ui| {
-                    ui.set_width(calendar_width);
-                    feather_calendar::ui::calendar_view::calendar_view(ui, prev_month_date.year(), prev_month_date.month(), &self.app_state.calendar_days.0, &mut self.app_state.marked_dates, &visuals);
-                });
-                ui.separator();
-                ui.vertical(|ui| {
-                    ui.set_width(calendar_width);
-                    feather_calendar::ui::calendar_view::calendar_view(ui, year, month, &self.app_state.calendar_days.1, &mut self.app_state.marked_dates, &visuals);
-                });
-                ui.separator();
-                ui.vertical(|ui| {
-                    ui.set_width(calendar_width);
-                    feather_calendar::ui::calendar_view::calendar_view(ui, next_month_date.year(), next_month_date.month(), &self.app_state.calendar_days.2, &mut self.app_state.marked_dates, &visuals);
-                });
-            });
+            match self.app_state.view_mode {
+                ViewMode::SingleMonth => {
+                    // 一ヶ月表示
+                    ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
+                        ui.set_max_width(280.0); // 一ヶ月表示時の最大幅を設定
+                        feather_calendar::ui::calendar_view::calendar_view(ui, year, month, &self.app_state.calendar_days.1, &mut self.app_state.marked_dates, &visuals);
+                    });
+                }
+                ViewMode::ThreeMonths => {
+                    // 三ヶ月表示（既存の実装）
+                    let calendar_width = (ui.available_width() - 50.0) / 3.0;
+                    ui.horizontal(|ui| {
+                        ui.vertical(|ui| {
+                            ui.set_width(calendar_width);
+                            feather_calendar::ui::calendar_view::calendar_view(ui, prev_month_date.year(), prev_month_date.month(), &self.app_state.calendar_days.0, &mut self.app_state.marked_dates, &visuals);
+                        });
+                        ui.separator();
+                        ui.vertical(|ui| {
+                            ui.set_width(calendar_width);
+                            feather_calendar::ui::calendar_view::calendar_view(ui, year, month, &self.app_state.calendar_days.1, &mut self.app_state.marked_dates, &visuals);
+                        });
+                        ui.separator();
+                        ui.vertical(|ui| {
+                            ui.set_width(calendar_width);
+                            feather_calendar::ui::calendar_view::calendar_view(ui, next_month_date.year(), next_month_date.month(), &self.app_state.calendar_days.2, &mut self.app_state.marked_dates, &visuals);
+                        });
+                    });
+                }
+            }
         });
     }
 }

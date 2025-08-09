@@ -1,5 +1,5 @@
 use egui::Ui;
-use crate::app::AppState;
+use crate::app::{AppState, ViewMode};
 use chrono::{Datelike, NaiveDate, Months};
 
 pub fn header_view(ui: &mut Ui, app_state: &mut AppState) {
@@ -19,6 +19,18 @@ pub fn header_view(ui: &mut Ui, app_state: &mut AppState) {
             let current_month_date = NaiveDate::from_ymd_opt(year, month, 1).unwrap();
             let next_month_date = current_month_date.checked_add_months(Months::new(1)).unwrap();
             app_state.current_month = (next_month_date.year(), next_month_date.month());
+        }
+
+        // View mode toggle button
+        let view_text = match app_state.view_mode {
+            ViewMode::SingleMonth => "1M",
+            ViewMode::ThreeMonths => "3M",
+        };
+        if ui.button(view_text).clicked() {
+            app_state.view_mode = match app_state.view_mode {
+                ViewMode::SingleMonth => ViewMode::ThreeMonths,
+                ViewMode::ThreeMonths => ViewMode::SingleMonth,
+            };
         }
 
         // Pin to top toggle switch
