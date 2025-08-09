@@ -1330,7 +1330,7 @@ dependencies = [
 
 [[package]]
 name = "feather_calendar"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "chrono",
  "eframe",
