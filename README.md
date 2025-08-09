@@ -23,7 +23,7 @@ To clarify its position, here's a feature comparison with major calendar applica
 | **Startup Speed / Lightweight** | **◎** | ○ | △ (Browser dependent) | ✕ |
 | **Always on Top (Pinnable)** | **◎** | ✕ | ✕ | ✕ |
 | **Stays Visible (Doesn't disappear)** | **◎** | ✕ | ○ (Tab/Window) | ○ (Window) |
-| **Multi-Month View** | **◎ (3 Months)** | ✕ (1 Month) | ○ | ○ |
+| **Multi-Month View** | **◎ (1/3 Months Switchable)** | ✕ (1 Month) | ○ | ○ |
 | **Scheduling / Sync** | **✕ (Not Supported)** | ○ (Limited) | ◎ | ◎ |
 
 As this table shows, Feather Calendar is a specialized tool for "quick date reference," not "event management."
@@ -32,7 +32,7 @@ As this table shows, Feather Calendar is a specialized tool for "quick date refe
 
 - 🚀 **No Installation Required**: Just unzip the file and run the `.exe`. It doesn't clutter your registry.
 - 📌 **Always on Top (Pinnable)**: Keep the calendar visible above all other windows with a single click.
-- 📅 **Intuitive 3-Month View**: See the previous, current, and next months at a glance for easy scheduling across months.
+- 📅 **Flexible View Modes**: See the previous, current, and next months at a glance for easy scheduling across months. Compact 1-month view is also available.
 - 🎨 **Date Highlighting**: Click on any date to highlight it, using it as a simple marker.
 - 🌗 **Theme-Aware**: Automatically switches between light and dark modes to match your OS settings.
 - 💨 **Lightweight & Fast**: Built with Rust and egui for low memory usage and snappy performance on any PC.
@@ -54,8 +54,16 @@ As this table shows, Feather Calendar is a specialized tool for "quick date refe
 3.  **Launch**: Double-click `Feather-Calendar.exe` to start the application.
 
 ### Usage
+#### View Mode Selection
+The calendar starts in 3-month view by default. Click the view mode button (showing "3ヶ月" or "1ヶ月") in the header to switch between:
+- **1-Month View**: Compact view showing only the current month
+- **3-Month View**: Comprehensive view showing previous, current, and next months
+
+The window size automatically adjusts when switching between view modes.
+
 #### Calendar View
-The calendar displays the previous, current, and next months based on today's date.
+In 3-month view, the calendar displays the previous, current, and next months based on today's date.
+In 1-month view, only the current month is displayed in a centered, compact layout.
 
 #### Highlighting Dates
 You can highlight a date by clicking on it. Click the date again to remove the highlight.
