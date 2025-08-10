@@ -3,7 +3,7 @@
 A lightweight, **pinnable desktop calendar** that won't get in your way during meetings.
 It's a simple and fast Windows application that you can quickly open when you need it and close when you're done.
 
-<img width="1063" height="399" alt="image" src="https://github.com/user-attachments/assets/9a38c400-2d55-4e01-8acb-f71018dda288" />
+<img width="1063" height="399" alt="image" src="https://github.com/user-attachments/assets/12a45ea9-aa3a-48b8-ac58-de5ab2339405" />
 
 ## What is Feather Calendar?
 
