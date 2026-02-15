@@ -10,12 +10,13 @@ fn main() -> eframe::Result<()> {
 
     let native_options = eframe::NativeOptions {
         viewport: egui::ViewportBuilder::default().with_inner_size([860.0, 310.0]).with_icon(icon).with_resizable(true),
+        persist_window: true,
         ..Default::default()
     };
     eframe::run_native(
         "Feather Calendar",
         native_options,
-        Box::new(|_cc| Box::new(FeatherCalendarApp::new())),
+        Box::new(|cc| Box::new(FeatherCalendarApp::new(cc))),
     )
 }
 
@@ -25,15 +26,20 @@ struct FeatherCalendarApp {
 }
 
 impl FeatherCalendarApp {
-    fn new() -> Self {
+    fn new(cc: &eframe::CreationContext<'_>) -> Self {
+        // ストレージから前回の状態を復元（なければデフォルト）
+        let mut app_state = cc.storage
+            .and_then(|s| eframe::get_value::<AppState>(s, eframe::APP_KEY))
+            .unwrap_or_default();
+
+        // current_month は常に今日の日付を使用（前回値を引き継がない）
         let now = chrono::Local::now().date_naive();
-        let (year, month) = (now.year(), now.month());
+        app_state.current_month = (now.year(), now.month());
+
+        let view_mode = app_state.view_mode;
         let mut app = Self {
-            app_state: AppState {
-                current_month: (year, month),
-                ..Default::default()
-            },
-            previous_view_mode: ViewMode::ThreeMonths,
+            app_state,
+            previous_view_mode: view_mode,
         };
         app.update_calendar_days();
         app
@@ -54,6 +60,10 @@ impl FeatherCalendarApp {
 }
 
 impl eframe::App for FeatherCalendarApp {
+    fn save(&mut self, storage: &mut dyn eframe::Storage) {
+        eframe::set_value(storage, eframe::APP_KEY, &self.app_state);
+    }
+
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
         // OSのテーマ設定に応じてeguiのテーマを切り替える
         if let Some(theme) = frame.info().system_theme {
