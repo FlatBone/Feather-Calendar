@@ -87,7 +87,7 @@ impl FeatherCalendarApp {
     fn new(_cc: &eframe::CreationContext<'_>, config: AppConfig) -> Self {
         // 設定ファイルから前回の状態を復元
         let now = chrono::Local::now().date_naive();
-        let mut app_state = AppState {
+        let app_state = AppState {
             current_month: (now.year(), now.month()),
             marked_dates: config.marked_dates,
             is_always_on_top: config.is_always_on_top,

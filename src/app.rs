@@ -2,9 +2,10 @@ use crate::logic::calendar_logic::CalendarDay;
 use chrono::{Datelike, NaiveDate};
 use std::collections::HashSet;
 
-#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize, Default)]
 pub enum ViewMode {
     SingleMonth,
+    #[default]
     ThreeMonths,
 }
 
