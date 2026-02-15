@@ -4,42 +4,102 @@ use feather_calendar::app::{AppState, ViewMode};
 use chrono::{Datelike, NaiveDate, Months};
 use feather_calendar::logic::calendar_logic;
 use image::GenericImageView;
+use std::collections::HashSet;
+use std::fs;
+use std::io;
+use std::path::PathBuf;
+
+#[derive(serde::Serialize, serde::Deserialize, Default)]
+struct AppConfig {
+    window_position: Option<egui::Pos2>,
+    marked_dates: HashSet<NaiveDate>,
+    is_always_on_top: bool,
+    view_mode: ViewMode,
+}
+
+fn get_config_path() -> io::Result<PathBuf> {
+    let exe_path = std::env::current_exe()?;
+    let exe_dir = exe_path.parent().ok_or_else(|| {
+        io::Error::new(io::ErrorKind::NotFound, "Cannot get parent directory of executable")
+    })?;
+    Ok(exe_dir.join("feather_calendar_config.json"))
+}
+
+fn load_config() -> AppConfig {
+    let config_path = match get_config_path() {
+        Ok(path) => path,
+        Err(_) => return AppConfig::default(),
+    };
+
+    let content = match fs::read_to_string(&config_path) {
+        Ok(c) => c,
+        Err(_) => return AppConfig::default(),
+    };
+
+    serde_json::from_str(&content).unwrap_or_default()
+}
+
+fn save_config(config: &AppConfig) {
+    let config_path = match get_config_path() {
+        Ok(path) => path,
+        Err(_) => return,
+    };
+
+    let json = match serde_json::to_string_pretty(config) {
+        Ok(j) => j,
+        Err(_) => return,
+    };
+
+    let _ = fs::write(&config_path, json);
+}
 
 fn main() -> eframe::Result<()> {
     let icon = load_icon();
+    let config = load_config();
+
+    let mut viewport = egui::ViewportBuilder::default()
+        .with_inner_size([860.0, 310.0])
+        .with_icon(icon)
+        .with_resizable(true);
+
+    if let Some(pos) = config.window_position {
+        viewport = viewport.with_position(pos);
+    }
 
     let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([860.0, 310.0]).with_icon(icon).with_resizable(true),
-        persist_window: true,
+        viewport,
         ..Default::default()
     };
     eframe::run_native(
         "Feather Calendar",
         native_options,
-        Box::new(|cc| Box::new(FeatherCalendarApp::new(cc))),
+        Box::new(move |cc| Box::new(FeatherCalendarApp::new(cc, config))),
     )
 }
 
 struct FeatherCalendarApp {
     app_state: AppState,
     previous_view_mode: ViewMode,
+    window_position: Option<egui::Pos2>,
 }
 
 impl FeatherCalendarApp {
-    fn new(cc: &eframe::CreationContext<'_>) -> Self {
-        // ストレージから前回の状態を復元（なければデフォルト）
-        let mut app_state = cc.storage
-            .and_then(|s| eframe::get_value::<AppState>(s, eframe::APP_KEY))
-            .unwrap_or_default();
-
-        // current_month は常に今日の日付を使用（前回値を引き継がない）
+    fn new(_cc: &eframe::CreationContext<'_>, config: AppConfig) -> Self {
+        // 設定ファイルから前回の状態を復元
         let now = chrono::Local::now().date_naive();
-        app_state.current_month = (now.year(), now.month());
+        let mut app_state = AppState {
+            current_month: (now.year(), now.month()),
+            marked_dates: config.marked_dates,
+            is_always_on_top: config.is_always_on_top,
+            view_mode: config.view_mode,
+            calendar_days: (Vec::new(), Vec::new(), Vec::new()),
+        };
 
         let view_mode = app_state.view_mode;
         let mut app = Self {
             app_state,
             previous_view_mode: view_mode,
+            window_position: None,
         };
         app.update_calendar_days();
         app
@@ -60,11 +120,27 @@ impl FeatherCalendarApp {
 }
 
 impl eframe::App for FeatherCalendarApp {
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, eframe::APP_KEY, &self.app_state);
+    fn save(&mut self, _storage: &mut dyn eframe::Storage) {
+        // 自前の設定ファイルに保存するため、eframe標準の保存は使わない
+    }
+
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        // アプリ終了時に設定を保存
+        let config = AppConfig {
+            window_position: self.window_position,
+            marked_dates: self.app_state.marked_dates.clone(),
+            is_always_on_top: self.app_state.is_always_on_top,
+            view_mode: self.app_state.view_mode,
+        };
+        save_config(&config);
     }
 
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        // ウィンドウ位置を記録
+        if let Some(rect) = ctx.input(|i| i.viewport().outer_rect) {
+            self.window_position = Some(rect.left_top());
+        }
+
         // OSのテーマ設定に応じてeguiのテーマを切り替える
         if let Some(theme) = frame.info().system_theme {
             ctx.set_visuals(match theme {
