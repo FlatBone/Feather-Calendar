@@ -1,3 +1,0 @@
-- ビルド: `cargo build --release`
-- 実行: `cargo run`
-- テスト: `cargo test`

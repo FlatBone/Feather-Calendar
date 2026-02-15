@@ -1,8 +1,0 @@
-- `main.rs`: アプリケーションのエントリーポイント
-- `app.rs`: アプリケーション全体の状態管理(MVUのModel/Update)
-- `ui/`: UI関連のモジュール (View)
-  - `calendar_view.rs`: カレンダーの描画
-  - `header_view.rs`: ヘッダー部分の描画
-- `logic/`: ビジネスロジック
-  - `calendar_logic.rs`: カレンダーの日付計算など
-- `persistence.rs`: (未実装)設定の永続化
