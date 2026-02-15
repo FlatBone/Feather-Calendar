@@ -1,13 +1,15 @@
 use crate::logic::calendar_logic::CalendarDay;
-use chrono::NaiveDate;
+use chrono::{Datelike, NaiveDate};
 use std::collections::HashSet;
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, serde::Serialize, serde::Deserialize, Default)]
 pub enum ViewMode {
     SingleMonth,
+    #[default]
     ThreeMonths,
 }
 
+#[derive(serde::Serialize, serde::Deserialize)]
 pub struct AppState {
     // 表示の中心となる年月
     pub current_month: (i32, u32), // (year, month)
@@ -18,13 +20,15 @@ pub struct AppState {
     // 表示モード（一ヶ月/三ヶ月）
     pub view_mode: ViewMode,
     // 表示するカレンダーのデータ（キャッシュ）
+    #[serde(skip)]
     pub calendar_days: (Vec<CalendarDay>, Vec<CalendarDay>, Vec<CalendarDay>), // (prev, current, next)
 }
 
 impl Default for AppState {
     fn default() -> Self {
+        let now = chrono::Local::now().date_naive();
         Self {
-            current_month: (0, 0),
+            current_month: (now.year() as i32, now.month()),
             marked_dates: HashSet::new(),
             is_always_on_top: false,
             view_mode: ViewMode::ThreeMonths, // デフォルトは三ヶ月表示
