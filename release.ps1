@@ -5,6 +5,7 @@ $CargoTomlPath = "./Cargo.toml"
 $LicensePath = "./LICENSE"
 $ReadmePath = "./README.md"
 $ReadmeJaPath = "./README_ja.md"
+$FontLicensePath = "./assets/fonts/LICENSE.txt"
 $ReleaseDir = "./target/release"
 $OutputArchiveDir = "./" # Output to the project root
 
@@ -61,6 +62,9 @@ if (-not (Test-Path $ReadmePath)) {
 if (-not (Test-Path $ReadmeJaPath)) { # Corrected variable name
     Write-Warning "README_ja.md file not found at $ReadmeJaPath"
 }
+if (-not (Test-Path $FontLicensePath)) {
+    Write-Warning "Font license file not found at $FontLicensePath"
+}
 
 # 4. Create the zip archive
 Write-Host "Creating archive: $OutputArchivePath"
@@ -81,6 +85,7 @@ Copy-Item -Path $ExePath -Destination $stagingDir
 Copy-Item -Path $LicensePath -Destination $stagingDir
 Copy-Item -Path $ReadmePath -Destination $stagingDir
 Copy-Item -Path $ReadmeJaPath -Destination $stagingDir
+Copy-Item -Path $FontLicensePath -Destination (Join-Path -Path $stagingDir -ChildPath "FONT_LICENSE.txt")
 
 # Create the archive from the staging directory
 Compress-Archive -Path "$stagingDir\*" -DestinationPath $OutputArchivePath

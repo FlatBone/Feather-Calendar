@@ -33,6 +33,7 @@ As this table shows, Feather Calendar is a specialized tool for "quick date refe
 - 🚀 **No Installation Required**: Just unzip the file and run the `.exe`. It doesn't clutter your registry.
 - 📌 **Always on Top (Pinnable)**: Keep the calendar visible above all other windows with a single click.
 - 📅 **Flexible View Modes**: See the previous, current, and next months at a glance for easy scheduling across months. Compact 1-month view is also available.
+- 🗓️ **Customizable Week Display**: Choose English or Japanese weekday labels, start weeks on Sunday or Monday, and show ISO week numbers only when needed.
 - 🎨 **Date Highlighting**: Click on any date to highlight it, using it as a simple marker.
 - 🌗 **Theme-Aware**: Automatically switches between light and dark modes to match your OS settings.
 - 💨 **Lightweight & Fast**: Built with Rust and egui for low memory usage and snappy performance on any PC.
@@ -65,8 +66,18 @@ The window size automatically adjusts when switching between view modes.
 In 3-month view, the calendar displays the previous, current, and next months based on today's date.
 In 1-month view, only the current month is displayed in a centered, compact layout.
 
+#### Weekday and Week-Number Settings
+Open the gear menu in the header to change these settings independently. Changes are saved automatically and restored the next time the application starts.
+
+- **Weekday labels**: `EN` (Sun./Mon. …) or `日` (日/月 …)
+- **Show week numbers**: Show or hide the week-number column on the left
+- **Week starts**: `S` (Sunday) or `M` (Monday)
+- **Week-number rule**: `ISO` or `Sun`
+
+`ISO` displays the ISO 8601 week containing the Thursday in each row. `Sun` displays the ISO week of the Sunday in each row. These settings do not change one another, so ISO week numbers can be displayed with a Sunday-first calendar.
+
 #### Highlighting Dates
-You can highlight a date by clicking on it. Click the date again to remove the highlight.
+You can highlight a date by clicking on it, including the dimmed dates from the previous or next month. Click the date again to remove the highlight.
 
 #### Changing the Displayed Month
 Click the arrow buttons next to "Today" to change the displayed month. Click the "Today" button to return to the default view.
@@ -123,3 +134,5 @@ To build this application from the source code, follow these steps.
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
+
+Japanese weekday labels use a subset of Noto Sans CJK JP under the SIL Open Font License 1.1. See the [font license](assets/fonts/LICENSE.txt) for details.
