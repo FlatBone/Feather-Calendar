@@ -1,11 +1,11 @@
 [package]
 name = "feather_calendar"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 
 [dependencies]
 chrono = { version = "0.4.38", features = ["serde"] }
-eframe = { version = "0.27.2", features = ["persistence"] }
+eframe = "0.27.2"
 egui = "0.27.2"
 image = "0.25.1"
 serde = { version = "1", features = ["derive"] }

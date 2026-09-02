@@ -2,12 +2,16 @@ use crate::logic::calendar_logic::{CalendarDay, WeekNumberRule, WeekStart};
 use chrono::NaiveDate;
 use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
+use std::fs;
+use std::io;
+use std::path::{Path, PathBuf};
 
-pub const DISPLAY_SETTINGS_STORAGE_KEY: &str = "display_settings";
+pub const CONFIG_FILE_NAME: &str = "feather_calendar_config.json";
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Default)]
 pub enum ViewMode {
     SingleMonth,
+    #[default]
     ThreeMonths,
 }
 
@@ -54,16 +58,77 @@ pub struct DisplaySettings {
     pub week_number_rule: WeekNumberRule,
 }
 
-impl DisplaySettings {
-    pub fn load(storage: Option<&dyn eframe::Storage>) -> Self {
-        storage
-            .and_then(|storage| eframe::get_value(storage, DISPLAY_SETTINGS_STORAGE_KEY))
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct WindowPosition {
+    pub x: f32,
+    pub y: f32,
+}
+
+impl From<egui::Pos2> for WindowPosition {
+    fn from(position: egui::Pos2) -> Self {
+        Self {
+            x: position.x,
+            y: position.y,
+        }
+    }
+}
+
+impl From<WindowPosition> for egui::Pos2 {
+    fn from(position: WindowPosition) -> Self {
+        Self::new(position.x, position.y)
+    }
+}
+
+/// Portable application settings stored next to the executable.
+///
+/// The first four fields intentionally match the v0.1.5 JSON schema. Adding
+/// `display_settings` with `#[serde(default)]` keeps existing files readable.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, Default)]
+#[serde(default)]
+pub struct AppConfig {
+    pub window_position: Option<WindowPosition>,
+    pub marked_dates: HashSet<NaiveDate>,
+    pub is_always_on_top: bool,
+    pub view_mode: ViewMode,
+    pub display_settings: DisplaySettings,
+}
+
+impl AppConfig {
+    pub fn path() -> io::Result<PathBuf> {
+        let executable = std::env::current_exe()?;
+        config_path_for_executable(&executable)
+    }
+
+    pub fn load() -> Self {
+        Self::path()
+            .ok()
+            .and_then(|path| fs::read_to_string(path).ok())
+            .map(|json| Self::from_json(&json))
             .unwrap_or_default()
     }
 
-    pub fn save(&self, storage: &mut dyn eframe::Storage) {
-        eframe::set_value(storage, DISPLAY_SETTINGS_STORAGE_KEY, self);
+    pub fn save(&self) -> io::Result<()> {
+        self.save_to_path(&Self::path()?)
     }
+
+    fn from_json(json: &str) -> Self {
+        serde_json::from_str(json).unwrap_or_default()
+    }
+
+    fn save_to_path(&self, path: &Path) -> io::Result<()> {
+        let json = serde_json::to_string_pretty(self).map_err(io::Error::other)?;
+        fs::write(path, json)
+    }
+}
+
+pub fn config_path_for_executable(executable: &Path) -> io::Result<PathBuf> {
+    let directory = executable.parent().ok_or_else(|| {
+        io::Error::new(
+            io::ErrorKind::NotFound,
+            "cannot determine the executable directory",
+        )
+    })?;
+    Ok(directory.join(CONFIG_FILE_NAME))
 }
 
 pub struct AppState {
@@ -97,59 +162,28 @@ impl Default for AppState {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use eframe::Storage as _;
-    use std::collections::HashMap;
 
-    #[derive(Default)]
-    struct MemoryStorage {
-        values: HashMap<String, String>,
-    }
-
-    impl eframe::Storage for MemoryStorage {
-        fn get_string(&self, key: &str) -> Option<String> {
-            self.values.get(key).cloned()
-        }
-
-        fn set_string(&mut self, key: &str, value: String) {
-            self.values.insert(key.to_owned(), value);
-        }
-
-        fn flush(&mut self) {}
+    fn display_settings_from_json(json: &str) -> DisplaySettings {
+        serde_json::from_str(json).unwrap_or_default()
     }
 
     #[test]
-    fn display_settings_round_trip_through_storage() {
+    fn display_settings_round_trip_through_json() {
         let settings = DisplaySettings {
             weekday_language: WeekdayLanguage::Japanese,
             show_week_numbers: true,
             week_start: WeekStart::Monday,
             week_number_rule: WeekNumberRule::SundayDate,
         };
-        let mut storage = MemoryStorage::default();
+        let json = serde_json::to_string(&settings).unwrap();
 
-        settings.save(&mut storage);
-
-        assert_eq!(DisplaySettings::load(Some(&storage)), settings);
+        assert_eq!(display_settings_from_json(&json), settings);
     }
 
     #[test]
     fn display_settings_use_defaults_for_missing_fields() {
-        #[derive(Serialize)]
-        struct LegacyDisplaySettings {
-            weekday_language: WeekdayLanguage,
-        }
-
-        let mut storage = MemoryStorage::default();
-        eframe::set_value(
-            &mut storage,
-            DISPLAY_SETTINGS_STORAGE_KEY,
-            &LegacyDisplaySettings {
-                weekday_language: WeekdayLanguage::Japanese,
-            },
-        );
-
         assert_eq!(
-            DisplaySettings::load(Some(&storage)),
+            display_settings_from_json(r#"{"weekday_language":"japanese"}"#),
             DisplaySettings {
                 weekday_language: WeekdayLanguage::Japanese,
                 ..Default::default()
@@ -159,13 +193,75 @@ mod tests {
 
     #[test]
     fn display_settings_use_defaults_for_corrupt_storage() {
-        let mut storage = MemoryStorage::default();
-        storage.set_string(DISPLAY_SETTINGS_STORAGE_KEY, "not valid ron".to_owned());
-
         assert_eq!(
-            DisplaySettings::load(Some(&storage)),
+            display_settings_from_json("not valid json"),
             DisplaySettings::default()
         );
+    }
+
+    #[test]
+    fn v0_1_5_config_is_loaded_with_default_display_settings() {
+        let legacy_json = r#"
+        {
+          "window_position": { "x": 120.5, "y": 80.25 },
+          "marked_dates": ["2026-09-01"],
+          "is_always_on_top": true,
+          "view_mode": "SingleMonth"
+        }
+        "#;
+
+        let config = AppConfig::from_json(legacy_json);
+
+        assert_eq!(
+            config.window_position,
+            Some(WindowPosition { x: 120.5, y: 80.25 })
+        );
+        assert!(
+            config
+                .marked_dates
+                .contains(&NaiveDate::from_ymd_opt(2026, 9, 1).unwrap())
+        );
+        assert!(config.is_always_on_top);
+        assert_eq!(config.view_mode, ViewMode::SingleMonth);
+        assert_eq!(config.display_settings, DisplaySettings::default());
+    }
+
+    #[test]
+    fn config_path_is_next_to_executable() {
+        let executable = Path::new(r"C:\Portable\Feather-Calendar.exe");
+
+        assert_eq!(
+            config_path_for_executable(executable).unwrap(),
+            PathBuf::from(r"C:\Portable\feather_calendar_config.json")
+        );
+    }
+
+    #[test]
+    fn config_file_is_created_and_round_trips() {
+        let unique = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!(
+            "feather_calendar_config_test_{}_{}.json",
+            std::process::id(),
+            unique
+        ));
+        let config = AppConfig {
+            is_always_on_top: true,
+            view_mode: ViewMode::SingleMonth,
+            display_settings: DisplaySettings {
+                show_week_numbers: true,
+                ..Default::default()
+            },
+            ..Default::default()
+        };
+
+        config.save_to_path(&path).unwrap();
+        let restored = AppConfig::from_json(&fs::read_to_string(&path).unwrap());
+        fs::remove_file(&path).unwrap();
+
+        assert_eq!(restored, config);
     }
 
     #[test]

@@ -76,6 +76,8 @@ Open the gear menu in the header to change these settings independently. Changes
 
 `ISO` displays the ISO 8601 week containing the Thursday in each row. `Sun` displays the ISO week of the Sunday in each row. These settings do not change one another, so ISO week numbers can be displayed with a Sunday-first calendar.
 
+Portable settings are stored in `feather_calendar_config.json` next to the executable. Existing configuration files created by v0.1.5 remain compatible; window position, highlighted dates, pin state, and view mode are preserved when the new display settings are added.
+
 #### Highlighting Dates
 You can highlight a date by clicking on it, including the dimmed dates from the previous or next month. Click the date again to remove the highlight.
 

@@ -7,6 +7,7 @@ use std::collections::HashSet;
 const WEEK_NUMBER_COLUMN_WIDTH: f32 = 24.0;
 const DAY_CELL_HEIGHT: f32 = 32.0;
 const CALENDAR_COLUMN_SPACING: f32 = 2.0;
+const CALENDAR_HORIZONTAL_PADDING: f32 = 2.0;
 
 pub fn calendar_view(
     ui: &mut Ui,
@@ -27,6 +28,7 @@ pub fn calendar_view(
         let day_cell_width = day_cell_width(ui, settings.show_week_numbers);
         ui.horizontal(|ui| {
             ui.spacing_mut().item_spacing.x = CALENDAR_COLUMN_SPACING;
+            ui.add_space(CALENDAR_HORIZONTAL_PADDING);
             if settings.show_week_numbers {
                 week_number_cell(ui, RichText::new("W").color(Color32::GRAY), 18.0);
             }
@@ -56,6 +58,7 @@ pub fn calendar_view(
             });
             ui.horizontal(|ui| {
                 ui.spacing_mut().item_spacing.x = CALENDAR_COLUMN_SPACING;
+                ui.add_space(CALENDAR_HORIZONTAL_PADDING);
                 if let Some(text) = week_number_text {
                     week_number_cell(ui, text, DAY_CELL_HEIGHT);
                 }
@@ -69,13 +72,22 @@ pub fn calendar_view(
 }
 
 fn day_cell_width(ui: &Ui, show_week_numbers: bool) -> f32 {
+    day_cell_width_for_available_width(ui.available_width(), show_week_numbers)
+}
+
+fn day_cell_width_for_available_width(available_width: f32, show_week_numbers: bool) -> f32 {
     let fixed_width = if show_week_numbers {
         WEEK_NUMBER_COLUMN_WIDTH
     } else {
         0.0
     };
     let gap_count = if show_week_numbers { 7.0 } else { 6.0 };
-    ((ui.available_width() - fixed_width - gap_count * CALENDAR_COLUMN_SPACING) / 7.0).max(1.0)
+    ((available_width
+        - fixed_width
+        - gap_count * CALENDAR_COLUMN_SPACING
+        - CALENDAR_HORIZONTAL_PADDING * 2.0)
+        / 7.0)
+        .max(1.0)
 }
 
 fn week_number_cell(ui: &mut Ui, text: RichText, height: f32) {
@@ -168,5 +180,14 @@ mod tests {
 
         toggle_marked_date(&mut marked_dates, adjacent_month_date);
         assert!(!marked_dates.contains(&adjacent_month_date));
+    }
+
+    #[test]
+    fn week_number_column_keeps_day_cells_balanced_in_single_month_view() {
+        let without_week_numbers = day_cell_width_for_available_width(280.0, false);
+        let with_week_numbers = day_cell_width_for_available_width(306.0, true);
+
+        assert_eq!(without_week_numbers, with_week_numbers);
+        assert!(without_week_numbers > 37.0);
     }
 }

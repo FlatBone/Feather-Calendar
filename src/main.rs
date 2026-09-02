@@ -1,48 +1,65 @@
 #![windows_subsystem = "windows"]
 
 use chrono::{Datelike, Months, NaiveDate};
-use feather_calendar::app::{AppState, DisplaySettings, ViewMode};
+use feather_calendar::app::{AppConfig, AppState, ViewMode, WindowPosition};
 use feather_calendar::logic::calendar_logic;
 use image::GenericImageView;
 
+const THREE_MONTH_WINDOW_SIZE: [f32; 2] = [860.0, 350.0];
+const SINGLE_MONTH_WINDOW_SIZE: [f32; 2] = [340.0, 350.0];
+const SINGLE_MONTH_CALENDAR_WIDTH: f32 = 280.0;
+const WEEK_NUMBER_CALENDAR_EXTRA_WIDTH: f32 = 26.0;
+
 fn main() -> eframe::Result<()> {
     let icon = load_icon();
+    let config = AppConfig::load();
+    // Create or migrate the portable config file as soon as the app starts.
+    let _ = config.save();
+
+    let mut viewport = egui::ViewportBuilder::default()
+        .with_inner_size(window_size(config.view_mode))
+        .with_icon(icon)
+        .with_resizable(true);
+    if let Some(position) = config.window_position {
+        viewport = viewport.with_position(egui::Pos2::from(position));
+    }
 
     let native_options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default()
-            .with_inner_size([860.0, 350.0])
-            .with_icon(icon)
-            .with_resizable(true),
+        viewport,
         persist_window: false,
         ..Default::default()
     };
     eframe::run_native(
         "Feather Calendar",
         native_options,
-        Box::new(|cc| Box::new(FeatherCalendarApp::new(cc))),
+        Box::new(move |cc| Box::new(FeatherCalendarApp::new(cc, config))),
     )
 }
 
 struct FeatherCalendarApp {
     app_state: AppState,
     previous_view_mode: ViewMode,
-    is_first_frame: bool,
+    window_position: Option<WindowPosition>,
 }
 
 impl FeatherCalendarApp {
-    fn new(cc: &eframe::CreationContext<'_>) -> Self {
+    fn new(cc: &eframe::CreationContext<'_>, config: AppConfig) -> Self {
         feather_calendar::ui::fonts::install_japanese_weekday_font(&cc.egui_ctx);
 
         let now = chrono::Local::now().date_naive();
         let (year, month) = (now.year(), now.month());
+        let view_mode = config.view_mode;
         let mut app = Self {
             app_state: AppState {
                 current_month: (year, month),
-                display_settings: DisplaySettings::load(cc.storage),
+                marked_dates: config.marked_dates,
+                is_always_on_top: config.is_always_on_top,
+                view_mode,
+                display_settings: config.display_settings,
                 ..Default::default()
             },
-            previous_view_mode: ViewMode::ThreeMonths,
-            is_first_frame: true,
+            previous_view_mode: view_mode,
+            window_position: config.window_position,
         };
         app.update_calendar_days();
         app
@@ -76,10 +93,25 @@ impl FeatherCalendarApp {
             ),
         );
     }
+
+    fn save_config(&self) {
+        let config = AppConfig {
+            window_position: self.window_position,
+            marked_dates: self.app_state.marked_dates.clone(),
+            is_always_on_top: self.app_state.is_always_on_top,
+            view_mode: self.app_state.view_mode,
+            display_settings: self.app_state.display_settings,
+        };
+        let _ = config.save();
+    }
 }
 
 impl eframe::App for FeatherCalendarApp {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+        if let Some(rect) = ctx.input(|input| input.viewport().outer_rect) {
+            self.window_position = Some(rect.left_top().into());
+        }
+
         // OSのテーマ設定に応じてeguiのテーマを切り替える
         if let Some(theme) = frame.info().system_theme {
             ctx.set_visuals(match theme {
@@ -99,14 +131,10 @@ impl eframe::App for FeatherCalendarApp {
         let week_start_before = self.app_state.display_settings.week_start;
 
         // 表示モードが変更された場合、ウィンドウサイズを調整
-        if self.is_first_frame || self.app_state.view_mode != self.previous_view_mode {
-            let new_size = match self.app_state.view_mode {
-                ViewMode::SingleMonth => [300.0, 350.0], // 一ヶ月表示時のサイズ
-                ViewMode::ThreeMonths => [860.0, 350.0], // 三ヶ月表示時のサイズ
-            };
+        if self.app_state.view_mode != self.previous_view_mode {
+            let new_size = window_size(self.app_state.view_mode);
             ctx.send_viewport_cmd(egui::ViewportCommand::InnerSize(egui::Vec2::from(new_size)));
             self.previous_view_mode = self.app_state.view_mode;
-            self.is_first_frame = false;
         }
 
         egui::CentralPanel::default().show(ctx, |ui| {
@@ -136,7 +164,9 @@ impl eframe::App for FeatherCalendarApp {
                 ViewMode::SingleMonth => {
                     // 一ヶ月表示
                     ui.with_layout(egui::Layout::top_down(egui::Align::Center), |ui| {
-                        ui.set_max_width(280.0); // 一ヶ月表示時の最大幅を設定
+                        ui.set_width(single_month_calendar_width(
+                            self.app_state.display_settings.show_week_numbers,
+                        ));
                         feather_calendar::ui::calendar_view::calendar_view(
                             ui,
                             year,
@@ -196,13 +226,25 @@ impl eframe::App for FeatherCalendarApp {
         });
     }
 
-    fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        self.app_state.display_settings.save(storage);
+    fn on_exit(&mut self, _gl: Option<&eframe::glow::Context>) {
+        self.save_config();
     }
+}
 
-    fn persist_egui_memory(&self) -> bool {
-        false
+const fn window_size(view_mode: ViewMode) -> [f32; 2] {
+    match view_mode {
+        ViewMode::SingleMonth => SINGLE_MONTH_WINDOW_SIZE,
+        ViewMode::ThreeMonths => THREE_MONTH_WINDOW_SIZE,
     }
+}
+
+const fn single_month_calendar_width(show_week_numbers: bool) -> f32 {
+    SINGLE_MONTH_CALENDAR_WIDTH
+        + if show_week_numbers {
+            WEEK_NUMBER_CALENDAR_EXTRA_WIDTH
+        } else {
+            0.0
+        }
 }
 
 fn load_icon() -> egui::IconData {
@@ -216,5 +258,18 @@ fn load_icon() -> egui::IconData {
         rgba: image_buffer.into_raw(),
         width,
         height,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn single_month_week_numbers_get_extra_space_without_changing_window_size() {
+        assert_eq!(window_size(ViewMode::SingleMonth), [340.0, 350.0]);
+        assert_eq!(single_month_calendar_width(false), 280.0);
+        assert_eq!(single_month_calendar_width(true), 306.0);
+        assert!(single_month_calendar_width(true) < SINGLE_MONTH_WINDOW_SIZE[0]);
     }
 }
